@@ -5,9 +5,11 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 
 import com.example.android.bakingapp.IngredientsActivity;
+import com.example.android.bakingapp.IngredientsFragment;
 import com.example.android.bakingapp.R;
 
 /**
@@ -15,16 +17,20 @@ import com.example.android.bakingapp.R;
  */
 public class BakingAppWidgetProvider extends AppWidgetProvider {
 
-    private static RemoteViews getBakingGridRemoteView(Context context) {
+    private static RemoteViews getIngredientsRemoteView(Context context) {
+//        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_ingredients_view);
+//        String noIngredients = context
+//                .getResources()
+//                .getString(R.string.no_recipe_selected);
+//        String ingredients =
+//                PreferenceManager
+//                        .getDefaultSharedPreferences(context)
+//                        .getString(IngredientsFragment.INGREDIENTS_EXTRA_KEY, noIngredients);
+//        views.setTextViewText(R.id.widget_ingredients_tv, ingredients);
+//        return views;
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_gridview);
-
         Intent intent = new Intent(context, GridRemoteViewService.class);
         views.setRemoteAdapter(R.id.widget_gv, intent);
-
-        Intent appIntent = new Intent(context, IngredientsActivity.class);
-        PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setPendingIntentTemplate(R.id.widget_gv, appPendingIntent);
-
         views.setEmptyView(R.id.widget_gv, R.id.no_data_tv);
 
         return views;
@@ -33,8 +39,9 @@ public class BakingAppWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
+
         RemoteViews rv;
-        rv = getBakingGridRemoteView(context);
+        rv = getIngredientsRemoteView(context);
         appWidgetManager.updateAppWidget(appWidgetId, rv);
     }
 

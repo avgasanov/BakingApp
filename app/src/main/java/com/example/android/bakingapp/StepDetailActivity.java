@@ -67,6 +67,7 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
         //mSteps.length - 1: because for arrays last_index = array_length - 1
         result.putString(StepDetailFragment.URI_EXTRA_KEY, mSteps[mPosition].getVideoURL());
         result.putString(StepDetailFragment.DESCRIPTION_EXTRA_KEY, mSteps[mPosition].getDescription());
+        result.putString(StepDetailFragment.THUMBNAIL_IMAGE_EXTRA_KEY, mSteps[mPosition].getThumbnailUrl());
         return result;
     }
 

@@ -3,19 +3,22 @@ package com.example.android.bakingapp.BakingData;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
 public class Step implements Parcelable, BakingAdapter.Data {
     private final int mId;
     private final String mShortDescription;
     private final String mDescription;
     private final String mVideoURL;
+    private final String mThumbnailUrl;
 
     static public final int DESCRIPTION = 2;
 
-    public Step(int id, String shortDescription, String description, String videoURL) {
+    public Step(int id, String shortDescription, String description, String videoURL, String thumbnailUrl) {
         mId = id;
         mShortDescription = shortDescription;
         mDescription = description;
         mVideoURL = videoURL;
+        mThumbnailUrl = thumbnailUrl;
     }
 
     protected Step(Parcel in) {
@@ -23,6 +26,7 @@ public class Step implements Parcelable, BakingAdapter.Data {
         mShortDescription = in.readString();
         mDescription = in.readString();
         mVideoURL = in.readString();
+        mThumbnailUrl = in.readString();
     }
 
     @Override
@@ -31,6 +35,7 @@ public class Step implements Parcelable, BakingAdapter.Data {
         dest.writeString(mShortDescription);
         dest.writeString(mDescription);
         dest.writeString(mVideoURL);
+        dest.writeString(mThumbnailUrl);
     }
 
     public static final Creator<Step> CREATOR = new Creator<Step>() {
@@ -66,5 +71,9 @@ public class Step implements Parcelable, BakingAdapter.Data {
     @Override
     public String getName() {
         return mShortDescription;
+    }
+
+    public String getThumbnailUrl() {
+        return mThumbnailUrl;
     }
 }

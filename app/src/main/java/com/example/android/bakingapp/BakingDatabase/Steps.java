@@ -28,4 +28,5 @@ public interface Steps {
     @DataType(DataType.Type.TEXT) String SHORT_DESCRIPTION = "short_description";
     @DataType(DataType.Type.TEXT) String DESCRIPTION = "description";
     @DataType(DataType.Type.TEXT) String VIDEO_URL = "video_url";
+    @DataType(DataType.Type.TEXT) String THUMBNAIL_URL = "thumbnail_url";
 }

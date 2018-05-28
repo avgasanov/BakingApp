@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <GridView
+        android:id="@+id/widget_gv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numColumns="1"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/no_data_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:text="@string/no_content_tv"
+        android:textAlignment="center"
+        android:visibility="visible"/>
+</FrameLayout>

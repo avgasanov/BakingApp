@@ -15,13 +15,12 @@ import java.io.IOException;
 import java.net.URL;
 /**
  * This loader is used to load data either from network or from database.
- * I use md5 hash to check whether json retrieved from network changed or don't.
- * If json file changed since last download loader updates database and returns Recipe[] array
+ * I use md5 hash to check whether json retrieved from network changed or didn't.
+ * If json file has changed since last download, loader updates database and returns Recipe[] array
  * If json file didn't change loader loads data from database
  */
 public class RecipeDataLoader extends AsyncTaskLoader<Recipe[]> {
     static private final String TAG = "RECLOADTAG";
-    static private final String JSON_RESPONSE_MD5_PREF = "json_md5";
     static public final int LOADER_ID = 100;
     private Recipe[] result;
     private Context mContext;
@@ -62,7 +61,7 @@ public class RecipeDataLoader extends AsyncTaskLoader<Recipe[]> {
                 String persistedResponseMD5 =
                         PreferenceManager
                                 .getDefaultSharedPreferences(mContext)
-                                .getString(JSON_RESPONSE_MD5_PREF, "0");
+                                .getString(BakingUtils.JSON_RESPONSE_MD5_PREF, "0");
 
                 if (!persistedResponseMD5.equals(responseMD5)) {
                     BakingUtils.clearDatabase(mContext);
@@ -71,7 +70,7 @@ public class RecipeDataLoader extends AsyncTaskLoader<Recipe[]> {
                     PreferenceManager
                             .getDefaultSharedPreferences(mContext)
                             .edit()
-                            .putString(JSON_RESPONSE_MD5_PREF, responseMD5)
+                            .putString(BakingUtils.JSON_RESPONSE_MD5_PREF, responseMD5)
                             .apply();
                     Log.v(TAG, "Retrieved from network");
                     Log.v(TAG, "Response MD5: "

@@ -10,6 +10,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 public class JsonUtils {
     static private final String TAG = "JSONUTILS";
     static public final String JSON_RECIPE_ID = "id";
@@ -26,6 +31,7 @@ public class JsonUtils {
     static public final String JSON_STEP_SHORT_DESCRIPTION = "shortDescription";
     static public final String JSON_STEP_DESCRIPTION = "description";
     static public final String JSON_STEP_VIDEO_URL = "videoURL";
+    static public final String JSON_STEP_THUMBNAIL_URL = "thumbnailURL";
 
     public static Recipe[] parseBakingJson(String jsonResponse) throws JSONException {
         if (jsonResponse == null) return null;
@@ -77,8 +83,13 @@ public class JsonUtils {
             String description = oneStepFromArray.optString(JSON_STEP_DESCRIPTION);
             String videoURL =
                     processVideoURL(oneStepFromArray.optString(JSON_STEP_VIDEO_URL));
+            //there is no example image in json file and also there is no documentation for api
+            //so i've decided to use glide library's error callbacks in application to
+            //handle errors.
 
-            result[i] = new Step(id, shortDescription, description, videoURL);
+            String thumbnailUrl = oneStepFromArray.optString(JSON_STEP_THUMBNAIL_URL);
+
+            result[i] = new Step(id, shortDescription, description, videoURL, thumbnailUrl);
         }
 
         return result;
@@ -95,5 +106,18 @@ public class JsonUtils {
         }
     }
 
-
+    private static boolean validateImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) return false;
+        try {
+            URLConnection connection = new URL(imageUrl).openConnection();
+            String contentType = connection.getHeaderField("Content-Type");
+            return contentType.startsWith("image/");
+        } catch (MalformedURLException e) {
+            Log.d(TAG, "Invalid image url: " + imageUrl);
+            return false;
+        } catch (IOException e) {
+            Log.d(TAG, "Connection error. Try again");
+            return false;
+        }
+    }
 }

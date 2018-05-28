@@ -3,10 +3,12 @@ package com.example.android.bakingapp.Widget;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.example.android.bakingapp.BakingData.Ingredient;
 import com.example.android.bakingapp.BakingData.Recipe;
 import com.example.android.bakingapp.BakingUtils.BakingUtils;
 import com.example.android.bakingapp.BakingUtils.JsonUtils;
@@ -20,16 +22,17 @@ import java.io.IOException;
 import java.net.URL;
 
 public class GridRemoteViewService extends RemoteViewsService {
+    public static String RECIPE_ID_WIDGET_KEY = "recipe_widget_key";
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         return new GridRemoteViewsFactory(this.getApplicationContext());
     }
 
-    class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+    class GridRemoteViewsFactory implements RemoteViewsFactory {
         private final String TAG = GridRemoteViewsFactory.class.getSimpleName();
         private Context mContext;
-        private Recipe[] mRecipes;
+        private Ingredient[] mRecipes;
 
         public GridRemoteViewsFactory(Context context) {
             mContext = context;
@@ -43,20 +46,11 @@ public class GridRemoteViewService extends RemoteViewsService {
         // from network.
         @Override
         public void onDataSetChanged() {
-            mRecipes = BakingUtils.retrieveRecipesFromDb(mContext);
-            Log.v("GIJDILLAGSKOY21", String.valueOf(mRecipes.length));
-
-            if (mRecipes == null && NetworkUtils.isConnected(mContext)) {
-                URL jsonRequestUrl =
-                        NetworkUtils.buildRequestUrlFromString(NetworkUtils.RECEPIES_REQUEST_URL);
-                if (jsonRequestUrl == null) return;
-                try {
-                    String jsonResponse = NetworkUtils.getJsonResponseFromUrl(jsonRequestUrl);
-                    mRecipes = JsonUtils.parseBakingJson(jsonResponse);
-                } catch (IOException | JSONException e) {
-                    Log.e(TAG, "Network\\json parsing error");
-                }
-            }
+            int recipeId =
+                    PreferenceManager
+                            .getDefaultSharedPreferences(mContext)
+                            .getInt(RECIPE_ID_WIDGET_KEY, 0);
+            mRecipes = BakingUtils.getIngredients(recipeId, mContext);
         }
 
         @Override
@@ -74,15 +68,11 @@ public class GridRemoteViewService extends RemoteViewsService {
             Log.v(TAG, "binding)))");
             if (mRecipes == null || mRecipes.length == 0) return null;
 
-            RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), R.layout.recipe_widget_item);
-            remoteViews.setTextViewText(R.id.recipe_widget_item_tv, mRecipes[position].getName());
+            RemoteViews remoteViews =
+                    new RemoteViews(mContext.getPackageName(), R.layout.recipe_widget_item);
+            remoteViews.setTextViewText(
+                    R.id.recipe_widget_item_tv, mRecipes[position].getFullDescription());
 
-            Bundle extras = new Bundle();
-            String ingredients = BakingUtils.getFullIngredients(mRecipes[position].getIngredients());
-            extras.putString(IngredientsFragment.INGREDIENTS_EXTRA_KEY, ingredients);
-            Intent fillInIntent = new Intent();
-            fillInIntent.putExtras(extras);
-            remoteViews.setOnClickFillInIntent(R.id.recipe_widget_item_tv, fillInIntent);
             return remoteViews;
         }
 

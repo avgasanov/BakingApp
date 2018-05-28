@@ -2,7 +2,9 @@ package com.example.android.bakingapp.BakingUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -21,12 +23,13 @@ import java.security.NoSuchAlgorithmException;
 
 //https://www.liammoat.com/blog/2017/pull-an-sqlite-database-file-from-an-android-device-for-debugging
 
-//i suppose, there is no need actually to pass whole array of ingredients.
-    //That is why i've created this helper method. It creates full "ingredients"
-    //text for textview. I've preserved Ingredient class just to keep things organized
     public class BakingUtils {
     private static String TAG = BakingUtils.class.getSimpleName();
+    public static final String JSON_RESPONSE_MD5_PREF = "json_md5";
 
+    //i suppose, there is no need actually to pass whole array of ingredients.
+    //That is why i've created this helper method. It creates full "ingredients"
+    //text for textview. I've preserved Ingredient class just to keep things organized
     public static String getFullIngredients(Ingredient[] ingredients) {
             StringBuilder result = new StringBuilder();
             for (Ingredient ingredient : ingredients) {
@@ -50,7 +53,7 @@ import java.security.NoSuchAlgorithmException;
         float widthDp = widthPixels / scaleFactor;
         float heightDp = heightPixels / scaleFactor;
         float smallestWidth = Math.min(widthDp, heightDp);
-        return  smallestWidth > 600;
+        return  smallestWidth >= 600;
     }
 
     public static Recipe[] retrieveRecipesFromDb(Context context) {
@@ -94,19 +97,20 @@ import java.security.NoSuchAlgorithmException;
             int shortDescIdx = stepCursor.getColumnIndex(Steps.SHORT_DESCRIPTION);
             int descIdx = stepCursor.getColumnIndex(Steps.DESCRIPTION);
             int videoIdx = stepCursor.getColumnIndex(Steps.VIDEO_URL);
+            int imageIdx = stepCursor.getColumnIndex(Steps.THUMBNAIL_URL);
 
             int orderingId = stepCursor.getInt(orderingIdIdx);
             String shortDesc = stepCursor.getString(shortDescIdx);
             String desc = stepCursor.getString(descIdx);
             String video = stepCursor.getString(videoIdx);
-
-            steps[i] = new Step(orderingId, shortDesc, desc, video);
+            String thumbnailUrl = stepCursor.getString(imageIdx);
+            steps[i] = new Step(orderingId, shortDesc, desc, video, thumbnailUrl);
         }
         stepCursor.close();
         return steps;
     }
 
-    private static Ingredient[] getIngredients(int recipe_id, Context context) {
+    public static Ingredient[] getIngredients(int recipe_id, Context context) {
         Cursor ingredientsCursor = context.getContentResolver().query(
                 BakingProvider.IngredientsTable.withId(recipe_id),
                 null,
@@ -162,6 +166,7 @@ import java.security.NoSuchAlgorithmException;
                     String shortDescription = recipeSteps[j].getName();
                     String description = recipeSteps[j].getDescription();
                     String videoUrl = recipeSteps[j].getVideoURL();
+                    String thumbnailUrl = recipeSteps[j].getThumbnailUrl();
 
                     stepsContentValues[j] = new ContentValues();
                     stepsContentValues[j].put(Steps.RECIPE_ID, recipeId);
@@ -169,6 +174,7 @@ import java.security.NoSuchAlgorithmException;
                     stepsContentValues[j].put(Steps.SHORT_DESCRIPTION, shortDescription);
                     stepsContentValues[j].put(Steps.DESCRIPTION, description);
                     stepsContentValues[j].put(Steps.VIDEO_URL, videoUrl);
+                    stepsContentValues[j].put(Steps.THUMBNAIL_URL, thumbnailUrl);
                 }
 
                 context.getContentResolver()
@@ -215,4 +221,10 @@ import java.security.NoSuchAlgorithmException;
                             null);
         }
 
+        public static void resetSharedPreferenceJsonMD5(Context context) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(JSON_RESPONSE_MD5_PREF, "0")
+                    .apply();
+        }
 }

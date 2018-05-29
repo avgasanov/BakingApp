@@ -20,53 +20,74 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-/**
- * This test will pass for devices < 600sw with proper internet connection
- */
+
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class DetailsStepPhoneTest {
+public class MainActivityTest {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void detailsStepPhoneTest() {
+    public void mainActivityTest() {
+        ViewInteraction textView = onView(
+                allOf(withId(R.id.tv_name), withText("Nutella Pie"),
+                        childAtPosition(
+                                allOf(withId(R.id.cardview_linear_ll),
+                                        childAtPosition(
+                                                withId(R.id.recipe_item_cv),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        textView.check(matches(withText("Nutella Pie")));
+
         ViewInteraction appCompatTextView = onView(
                 allOf(withId(R.id.tv_name), withText("Nutella Pie"),
                         childAtPosition(
-                                allOf(withId(R.id.recipe_item_cv),
+                                allOf(withId(R.id.cardview_linear_ll),
                                         childAtPosition(
-                                                withId(R.id.rv_master_list_root),
+                                                withId(R.id.recipe_item_cv),
                                                 0)),
-                                0),
+                                1),
                         isDisplayed()));
         appCompatTextView.perform(click());
 
-        ViewInteraction textView = onView(
+        ViewInteraction appCompatTextView2 = onView(
                 allOf(withId(R.id.tv_name), withText("Recipe Ingredients"),
                         childAtPosition(
-                                allOf(withId(R.id.recipe_item_cv),
+                                allOf(withId(R.id.cardview_linear_ll),
                                         childAtPosition(
-                                                withId(R.id.rv_master_list_root),
+                                                withId(R.id.recipe_item_cv),
                                                 0)),
-                                0),
+                                1),
                         isDisplayed()));
-        textView.check(matches(withText("Recipe Ingredients")));
+        appCompatTextView2.perform(click());
 
-        ViewInteraction textView2 = onView(
-                allOf(withId(R.id.tv_name), withText("Recipe Introduction"),
+        ViewInteraction appCompatImageButton = onView(
+                allOf(withContentDescription("Navigate up"),
                         childAtPosition(
-                                allOf(withId(R.id.recipe_item_cv),
+                                allOf(withId(R.id.action_bar),
                                         childAtPosition(
-                                                withId(R.id.rv_master_list_root),
+                                                withId(R.id.action_bar_container),
                                                 0)),
-                                0),
+                                1),
                         isDisplayed()));
-        textView2.check(matches(withText("Recipe Introduction")));
+        appCompatImageButton.perform(click());
+
+        ViewInteraction appCompatImageButton2 = onView(
+                allOf(withContentDescription("Navigate up"),
+                        childAtPosition(
+                                allOf(withId(R.id.action_bar),
+                                        childAtPosition(
+                                                withId(R.id.action_bar_container),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        appCompatImageButton2.perform(click());
 
     }
 

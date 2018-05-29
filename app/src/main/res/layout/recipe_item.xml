@@ -16,6 +16,7 @@
         card_view:cardBackgroundColor="@color/colorPrimary"
         >
             <LinearLayout
+                android:id="@+id/cardview_linear_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"

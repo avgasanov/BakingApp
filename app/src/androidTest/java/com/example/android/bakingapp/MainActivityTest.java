@@ -1,6 +1,6 @@
 package com.example.android.bakingapp;
 
-
+// should work for phone < sw600
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;

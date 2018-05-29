@@ -23,7 +23,7 @@ import java.security.NoSuchAlgorithmException;
 
 //https://www.liammoat.com/blog/2017/pull-an-sqlite-database-file-from-an-android-device-for-debugging
 
-    public class BakingUtils {
+public class BakingUtils {
     private static String TAG = BakingUtils.class.getSimpleName();
     public static final String JSON_RESPONSE_MD5_PREF = "json_md5";
 
@@ -31,12 +31,12 @@ import java.security.NoSuchAlgorithmException;
     //That is why i've created this helper method. It creates full "ingredients"
     //text for textview. I've preserved Ingredient class just to keep things organized
     public static String getFullIngredients(Ingredient[] ingredients) {
-            StringBuilder result = new StringBuilder();
-            for (Ingredient ingredient : ingredients) {
-                result.append(ingredient.getFullDescription() + "\n");
-            }
-            return result.toString();
+        StringBuilder result = new StringBuilder();
+        for (Ingredient ingredient : ingredients) {
+            result.append(ingredient.getFullDescription() + "\n");
         }
+        return result.toString();
+    }
 
     //in AndroidMe application (Fragments Lesson), tablet is defined as android device with sw > 600
     // in that application main activity layout name was used to figure out device type (phone/tablet)
@@ -66,21 +66,29 @@ import java.security.NoSuchAlgorithmException;
 
         Recipe[] recipes = new Recipe[recipesCursor.getCount()];
         for (int j=0; recipesCursor.moveToNext(); j++) {
-                int idIdx = recipesCursor.getColumnIndex(Recipes._ID);
-                int nameIdx = recipesCursor.getColumnIndex(Recipes.NAME);
-                int servingsIdx = recipesCursor.getColumnIndex(Recipes.SERVINGS);
+            int idIdx = recipesCursor.getColumnIndex(Recipes._ID);
+            int nameIdx = recipesCursor.getColumnIndex(Recipes.NAME);
+            int servingsIdx = recipesCursor.getColumnIndex(Recipes.SERVINGS);
+            int recipeImageIdx = recipesCursor.getColumnIndex(Recipes.IMAGE);
 
-                int recipeId = recipesCursor.getInt(idIdx);
-                String recipeName = recipesCursor.getString(nameIdx);
-                int recipeServings = recipesCursor.getInt(servingsIdx);
+            int recipeId = recipesCursor.getInt(idIdx);
+            String recipeName = recipesCursor.getString(nameIdx);
+            int recipeServings = recipesCursor.getInt(servingsIdx);
+            String recipeImage = recipesCursor.getString(recipeImageIdx);
 
-                Ingredient[] ingredients = getIngredients(recipeId, context);
-                Step[] steps = getSteps(recipeId, context);
+            Ingredient[] ingredients = getIngredients(recipeId, context);
+            Step[] steps = getSteps(recipeId, context);
 
-                recipes[j] = new Recipe(recipeId, recipeName, ingredients, steps, recipeServings);
-            }
-            recipesCursor.close();
-            return recipes;
+            recipes[j] =
+                    new Recipe(recipeId,
+                            recipeName,
+                            ingredients,
+                            steps,
+                            recipeServings,
+                            recipeImage);
+        }
+        recipesCursor.close();
+        return recipes;
     }
 
     private static Step[] getSteps(int recipe_id, Context context) {
@@ -135,96 +143,98 @@ import java.security.NoSuchAlgorithmException;
     //There are only 4 recipe in json file. So i've decided to use bulk insert only for ingredients
     //and steps.
     public static void insertRecipesIntoDatabase(Recipe[] recipes, Context context) {
-            for (int i=0; i < recipes.length; i++) {
-                int recipeId = recipes[i].getId();
-                String recipeName = recipes[i].getName();
-                int servings = recipes[i].getServings();
+        for (int i=0; i < recipes.length; i++) {
+            int recipeId = recipes[i].getId();
+            String recipeName = recipes[i].getName();
+            int servings = recipes[i].getServings();
+            String recipeImage = recipes[i].getThumbnailUrl();
 
-                ContentValues recipeContentValues = new ContentValues();
-                recipeContentValues.put(Recipes._ID, recipeId);
-                recipeContentValues.put(Recipes.NAME, recipeName);
-                recipeContentValues.put(Recipes.SERVINGS, servings);
+            ContentValues recipeContentValues = new ContentValues();
+            recipeContentValues.put(Recipes._ID, recipeId);
+            recipeContentValues.put(Recipes.NAME, recipeName);
+            recipeContentValues.put(Recipes.SERVINGS, servings);
+            recipeContentValues.put(Recipes.IMAGE, recipeImage);
 
-                Ingredient[] recipeIngredients = recipes[i].getIngredients();
-                ContentValues[] ingredientContentValues = new ContentValues[recipeIngredients.length];
-                for (int j=0; j < recipeIngredients.length; j ++) {
-                    double quantity = recipeIngredients[j].getQuantity();
-                    String measure = recipeIngredients[j].getMeasure();
-                    String ingredient = recipeIngredients[j].getIngredient();
+            Ingredient[] recipeIngredients = recipes[i].getIngredients();
+            ContentValues[] ingredientContentValues = new ContentValues[recipeIngredients.length];
+            for (int j=0; j < recipeIngredients.length; j ++) {
+                double quantity = recipeIngredients[j].getQuantity();
+                String measure = recipeIngredients[j].getMeasure();
+                String ingredient = recipeIngredients[j].getIngredient();
 
-                    ingredientContentValues[j] = new ContentValues();
-                    ingredientContentValues[j].put(Ingredients.RECIPE_ID, recipeId);
-                    ingredientContentValues[j].put(Ingredients.QUANTITY, quantity);
-                    ingredientContentValues[j].put(Ingredients.MEASURE, measure);
-                    ingredientContentValues[j].put(Ingredients.INGREDIENT, ingredient);
-                }
-
-                Step[] recipeSteps = recipes[i].getStep();
-                ContentValues[] stepsContentValues = new ContentValues[recipeSteps.length];
-                for (int j=0; j < recipeSteps.length; j ++) {
-                    int stepId = recipeSteps[j].getId();
-                    String shortDescription = recipeSteps[j].getName();
-                    String description = recipeSteps[j].getDescription();
-                    String videoUrl = recipeSteps[j].getVideoURL();
-                    String thumbnailUrl = recipeSteps[j].getThumbnailUrl();
-
-                    stepsContentValues[j] = new ContentValues();
-                    stepsContentValues[j].put(Steps.RECIPE_ID, recipeId);
-                    stepsContentValues[j].put(Steps.ORDERING_ID, stepId);
-                    stepsContentValues[j].put(Steps.SHORT_DESCRIPTION, shortDescription);
-                    stepsContentValues[j].put(Steps.DESCRIPTION, description);
-                    stepsContentValues[j].put(Steps.VIDEO_URL, videoUrl);
-                    stepsContentValues[j].put(Steps.THUMBNAIL_URL, thumbnailUrl);
-                }
-
-                context.getContentResolver()
-                        .insert(BakingProvider.RecipesTable.CONTENT_URI, recipeContentValues);
-                context.getContentResolver()
-                        .bulkInsert(BakingProvider.IngredientsTable.CONTENT_URI, ingredientContentValues);
-                context.getContentResolver()
-                        .bulkInsert(BakingProvider.StepsTable.CONTENT_URI, stepsContentValues);
-
+                ingredientContentValues[j] = new ContentValues();
+                ingredientContentValues[j].put(Ingredients.RECIPE_ID, recipeId);
+                ingredientContentValues[j].put(Ingredients.QUANTITY, quantity);
+                ingredientContentValues[j].put(Ingredients.MEASURE, measure);
+                ingredientContentValues[j].put(Ingredients.INGREDIENT, ingredient);
             }
 
+            Step[] recipeSteps = recipes[i].getStep();
+            ContentValues[] stepsContentValues = new ContentValues[recipeSteps.length];
+            for (int j=0; j < recipeSteps.length; j ++) {
+                int stepId = recipeSteps[j].getId();
+                String shortDescription = recipeSteps[j].getName();
+                String description = recipeSteps[j].getDescription();
+                String videoUrl = recipeSteps[j].getVideoURL();
+                String thumbnailUrl = recipeSteps[j].getThumbnailUrl();
 
-        }
-
-        //source:
-        // https://stackoverflow.com/questions/415953/how-can-i-generate-an-md5-hash
-        public static String generateMD5(String plaintext) {
-            MessageDigest m = null;
-            try {
-                m = MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException e) {
-                Log.d(TAG, "MD5 algorithm not found");
-                e.printStackTrace();
+                stepsContentValues[j] = new ContentValues();
+                stepsContentValues[j].put(Steps.RECIPE_ID, recipeId);
+                stepsContentValues[j].put(Steps.ORDERING_ID, stepId);
+                stepsContentValues[j].put(Steps.SHORT_DESCRIPTION, shortDescription);
+                stepsContentValues[j].put(Steps.DESCRIPTION, description);
+                stepsContentValues[j].put(Steps.VIDEO_URL, videoUrl);
+                stepsContentValues[j].put(Steps.THUMBNAIL_URL, thumbnailUrl);
             }
-            m.reset();
-            m.update(plaintext.getBytes());
-            byte[] digest = m.digest();
-            BigInteger bigInt = new BigInteger(1,digest);
-            return bigInt.toString(16);
+
+            context.getContentResolver()
+                    .insert(BakingProvider.RecipesTable.CONTENT_URI, recipeContentValues);
+            context.getContentResolver()
+                    .bulkInsert(BakingProvider.IngredientsTable.CONTENT_URI, ingredientContentValues);
+            context.getContentResolver()
+                    .bulkInsert(BakingProvider.StepsTable.CONTENT_URI, stepsContentValues);
+
         }
 
-        public static void clearDatabase(Context context) {
-            context.getContentResolver()
-                    .delete(BakingProvider.IngredientsTable.CONTENT_URI,
-                            null,
-                            null);
-            context.getContentResolver()
-                    .delete(BakingProvider.StepsTable.CONTENT_URI,
-                            null,
-                            null);
-            context.getContentResolver()
-                    .delete(BakingProvider.RecipesTable.CONTENT_URI,
-                            null,
-                            null);
-        }
 
-        public static void resetSharedPreferenceJsonMD5(Context context) {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putString(JSON_RESPONSE_MD5_PREF, "0")
-                    .apply();
+    }
+
+    //source:
+    // https://stackoverflow.com/questions/415953/how-can-i-generate-an-md5-hash
+    public static String generateMD5(String plaintext) {
+        MessageDigest m = null;
+        try {
+            m = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            Log.d(TAG, "MD5 algorithm not found");
+            e.printStackTrace();
         }
+        m.reset();
+        m.update(plaintext.getBytes());
+        byte[] digest = m.digest();
+        BigInteger bigInt = new BigInteger(1,digest);
+        return bigInt.toString(16);
+    }
+
+    public static void clearDatabase(Context context) {
+        context.getContentResolver()
+                .delete(BakingProvider.IngredientsTable.CONTENT_URI,
+                        null,
+                        null);
+        context.getContentResolver()
+                .delete(BakingProvider.StepsTable.CONTENT_URI,
+                        null,
+                        null);
+        context.getContentResolver()
+                .delete(BakingProvider.RecipesTable.CONTENT_URI,
+                        null,
+                        null);
+    }
+
+    public static void resetSharedPreferenceJsonMD5(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(JSON_RESPONSE_MD5_PREF, "0")
+                .apply();
+    }
 }

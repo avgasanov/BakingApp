@@ -18,16 +18,6 @@ import com.example.android.bakingapp.R;
 public class BakingAppWidgetProvider extends AppWidgetProvider {
 
     private static RemoteViews getIngredientsRemoteView(Context context) {
-//        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_ingredients_view);
-//        String noIngredients = context
-//                .getResources()
-//                .getString(R.string.no_recipe_selected);
-//        String ingredients =
-//                PreferenceManager
-//                        .getDefaultSharedPreferences(context)
-//                        .getString(IngredientsFragment.INGREDIENTS_EXTRA_KEY, noIngredients);
-//        views.setTextViewText(R.id.widget_ingredients_tv, ingredients);
-//        return views;
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_gridview);
         Intent intent = new Intent(context, GridRemoteViewService.class);
         views.setRemoteAdapter(R.id.widget_gv, intent);

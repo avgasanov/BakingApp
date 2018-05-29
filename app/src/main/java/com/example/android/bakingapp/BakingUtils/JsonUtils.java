@@ -20,6 +20,7 @@ public class JsonUtils {
     static public final String JSON_RECIPE_ID = "id";
     static public final String JSON_RECIPE_NAME = "name";
     static public final String JSON_RECIPE_SERVINGS = "servings";
+    static public final String JSON_RECIPE_IMAGE = "image";
 
     static public final String JSON_INGREDIENTS = "ingredients";
     static public final String JSON_INGREDIENT_QUANTITY = "quantity";
@@ -49,8 +50,10 @@ public class JsonUtils {
             Step[] steps =
                     getSteps(oneRecipeFromArray.getJSONArray(JSON_STEPS));
             int servings = oneRecipeFromArray.getInt(JSON_RECIPE_SERVINGS);
+            String imageUrl = oneRecipeFromArray.optString(JSON_RECIPE_IMAGE);
 
-            result[i] = new Recipe(id, name, ingredients, steps, servings);
+            result[i] =
+                    new Recipe(id, name, ingredients, steps, servings, imageUrl);
         }
 
         return result;
@@ -83,9 +86,6 @@ public class JsonUtils {
             String description = oneStepFromArray.optString(JSON_STEP_DESCRIPTION);
             String videoURL =
                     processVideoURL(oneStepFromArray.optString(JSON_STEP_VIDEO_URL));
-            //there is no example image in json file and also there is no documentation for api
-            //so i've decided to use glide library's error callbacks in application to
-            //handle errors.
 
             String thumbnailUrl = oneStepFromArray.optString(JSON_STEP_THUMBNAIL_URL);
 

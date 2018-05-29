@@ -11,16 +11,18 @@ public class Recipe implements Parcelable, BakingAdapter.Data {
 
     private final Step[] mStep;
     private final int mServings;
+    private final String mImageUrl;
     static private final int NULL_PARCELABLE = 0;
 
     static public final int DESCRIPTION = 3;
     public Recipe(int id, String name, Ingredient[] ingredients,
-                  Step[] step, int servings) {
+                  Step[] step, int servings, String imageUrl) {
         mId = id;
         mName = name;
         mIngredients = ingredients;
         mStep = step;
         mServings = servings;
+        mImageUrl = imageUrl;
     }
 
     protected Recipe(Parcel in) {
@@ -28,9 +30,6 @@ public class Recipe implements Parcelable, BakingAdapter.Data {
         mName = in.readString();
 
         if (in.readInt() == Ingredient.DESCRIPTION) {
-//            Parcelable parcelable[] = in.readParcelable(Ingredient.class.getClassLoader());
-//            mIngredients = (Ingredient[]) parcelable;
-           // mIngredients.wr
             mIngredients = (Ingredient[]) in.readParcelableArray(Ingredient.class.getClassLoader());
         } else mIngredients = null;
 
@@ -39,6 +38,7 @@ public class Recipe implements Parcelable, BakingAdapter.Data {
         } else mStep = null;
 
         mServings = in.readInt();
+        mImageUrl = in.readString();
     }
 
     @Override
@@ -57,6 +57,7 @@ public class Recipe implements Parcelable, BakingAdapter.Data {
         } else dest.writeInt(NULL_PARCELABLE);
 
         dest.writeInt(mServings);
+        dest.writeString(mImageUrl);
     }
 
     public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
@@ -95,4 +96,6 @@ public class Recipe implements Parcelable, BakingAdapter.Data {
     public int getServings() {
         return mServings;
     }
+
+    public String getThumbnailUrl() {return mImageUrl;}
 }

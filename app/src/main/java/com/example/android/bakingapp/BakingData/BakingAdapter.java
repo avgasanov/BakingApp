@@ -7,8 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.bakingapp.R;
 
 import butterknife.BindView;
@@ -36,7 +38,14 @@ public class BakingAdapter extends RecyclerView.Adapter<BakingAdapter.ViewHolder
         @Override
         public void onBindViewHolder(@NonNull BakingAdapter.ViewHolder holder, int position) {
             String name = mData[position].getName();
+            String image = mData[position].getThumbnailUrl();
             holder.mDataTextView.setText(name);
+            holder.mRecipeImage.setVisibility(View.VISIBLE);
+                Glide.with(mContext)
+                        .load(image)
+                        .error(Glide.with(mContext)
+                                .load(android.R.drawable.gallery_thumb))
+                        .into(holder.mRecipeImage);
         }
 
 
@@ -60,6 +69,8 @@ public class BakingAdapter extends RecyclerView.Adapter<BakingAdapter.ViewHolder
             TextView mDataTextView;
             @BindView(R.id.recipe_item_cv)
             CardView mRecipeCard;
+            @BindView(R.id.recipe_image_iv)
+            ImageView mRecipeImage;
 
 
             public ViewHolder(View itemView) {
@@ -82,6 +93,7 @@ public class BakingAdapter extends RecyclerView.Adapter<BakingAdapter.ViewHolder
 
         public interface Data {
             public String getName();
+            public String getThumbnailUrl();
         }
 }
 

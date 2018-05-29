@@ -8,4 +8,5 @@ public interface Recipes {
     @DataType(DataType.Type.INTEGER) @PrimaryKey String _ID = "id";
     @DataType(DataType.Type.TEXT) @NotNull String NAME = "name";
     @DataType(DataType.Type.INTEGER) String SERVINGS = "servings";
+    @DataType(DataType.Type.TEXT) String IMAGE = "image";
 }

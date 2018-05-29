@@ -29,7 +29,6 @@
                     android:scaleType="fitXY"
                     android:layout_gravity="center_vertical"
                     android:layout_margin="16dp"
-                    card_view:srcCompat="@drawable/image_placeholder"
                     android:visibility="gone" />
                 <TextView
                     android:id="@+id/tv_name"
